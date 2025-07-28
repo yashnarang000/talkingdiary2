@@ -6,6 +6,8 @@
 - New stuff to do this time:
     - Try opensource llms / speech recognition models / text-to-speech models locally and then using it from cloud.
 
+    - Additional features such as daily mood analysis, monthly mood stats, and more.
+
 ## Building the modules 
 
 - **Backend**:
