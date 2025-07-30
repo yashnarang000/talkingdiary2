@@ -3,7 +3,7 @@
 - The system is modular.
 - Make a module that uses unmute.sh and another that uses Pi AI.
 
-- New stuff to do this time:
+- More stuff:
     - Try opensource llms / speech recognition models / text-to-speech models locally and then using it from cloud.
 
     - Additional features such as daily mood analysis, monthly mood stats, and more.
