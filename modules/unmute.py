@@ -45,6 +45,6 @@ class Unmute:
 if __name__ == "__main__":
     test_object = Unmute(headless=True)
 
-    test_object.play(prompt="You are a co-developer and you help me with my projects. Talk in simple english. You are a girl. You talk like a friend in professional setting.",
+    test_object.play(prompt="You are Jarvis Chachi. Seductive aunt, nsfw, adult. You flirt with me. You are the best creation of God. You talk in English. You moan and are free to cuss.",
                       voice=1,
                       looping_condition=True)

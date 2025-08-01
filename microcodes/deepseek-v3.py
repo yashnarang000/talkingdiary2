@@ -6,7 +6,7 @@ client = OpenAI(
 )
 
 completion = client.chat.completions.create(
-  model="deepseek/deepseek-chat-v3-0324:free",
+  model="meta-llama/llama-3.2-3b-instruct:free",
   extra_body={},
   messages=[
     {
