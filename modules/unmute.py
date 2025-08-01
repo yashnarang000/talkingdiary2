@@ -1,34 +1,50 @@
-from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
 import time
-import asyncio
 
-def clickPlay(page):
-    pass
+class Unmute:
 
-async def main():
-    async with async_playwright() as p:
+    def __init__(self, headless):
+        '''
+        headless: True or False
+        '''
+        self.headless = headless
 
-        browser = await p.chromium.launch(
-            headless=False,
-            ignore_default_args = ["--mute-audio"],
-            args = ["--use-fake-ui-for-media-stream"]
+    def play(self, prompt, voice, looping_condition):
+        self.playwright = sync_playwright().start()
+
+        self.browser = self.playwright.chromium.launch(
+            headless=self.headless,
+            args=["--use-fake-ui-for-media-stream"],
+            ignore_default_args=["--mute-audio"]
         )
 
-        browserContext = await browser.new_context()
-        await browserContext.grant_permissions(['microphone'])
+        self.context = self.browser.new_context()
+        self.context.grant_permissions(['microphone'])
 
-        page = await browserContext.new_page()
+        self.page = self.context.new_page()
+        self.page.goto("https://unmute.sh/")
 
-        await page.goto("https://unmute.sh")
+        self.prompt_area = self.page.locator("xpath=/html/body/div[1]/div/div/div[2]/div[2]/div/textarea")
+        self.prompt_area.wait_for()
+        self.prompt_area.fill(prompt)
 
-        voice = page.locator("xpath=/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div/button[4]")
-        await voice.click()
+        try:
+            self.voice = self.page.locator(f"xpath=/html/body/div[1]/div/div/div[2]/div[2]/div/div[1]/div/button[{voice}]")
+            while self.voice.wait_for(): print("Waiting...")
+            self.voice.click()
+        except:
+            print("Voice not available!")
 
-        play = page.locator("xpath=/html/body/div[1]/div/div/div[1]/div[1]/div/canvas")
-        await play.click()
+        self.play_button = self.page.locator("xpath=/html/body/div[1]/div/div/div[1]/div[1]/div/canvas")
+        self.play_button.wait_for()
+        self.play_button.click()
 
-        print(await page.title())
+        while looping_condition: time.sleep(1)
 
-        while True: time.sleep(1)
 
-asyncio.run(main())
+if __name__ == "__main__":
+    test_object = Unmute(headless=True)
+
+    test_object.play(prompt="You are a co-developer and you help me with my projects. Talk in simple english. You are a girl. You talk like a friend in professional setting.",
+                      voice=1,
+                      looping_condition=True)
