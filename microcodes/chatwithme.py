@@ -2,7 +2,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 
-def history_appender(history, role, content):
+def _history_appender(history, role, content):
 
     if role not in ["user", "system", "assistant"]:
         return
@@ -16,7 +16,7 @@ def history_appender(history, role, content):
 
     return history
 
-def textCompletion(messages, client, model):
+def _textCompletion(messages, client, model):
 
   completion = client.chat.completions.create(
     model=model,
@@ -28,16 +28,16 @@ def textCompletion(messages, client, model):
 
 def respond(prompt, client, model, history=[]):
     
-    completion = textCompletion(history_appender(history, "user", prompt), client=client, model=model)
+    completion = _textCompletion(_history_appender(history, "user", prompt), client=client, model=model)
 
     response = completion.choices[0].message.content
 
-    history_appender(history, "assistant", response)
+    _history_appender(history, "assistant", response)
 
     return response
 
 def instruct(instruction, history=[]):
-    history_appender(history, "system", instruction)
+    _history_appender(history, "system", instruction)
 
 def chat_loop(instruction, client, model, history=[], looping_condition=True):
    
