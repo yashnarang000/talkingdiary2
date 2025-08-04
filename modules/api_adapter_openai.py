@@ -64,7 +64,7 @@ def chat_loop(instruction, client, model, history=[], looping_condition=True, us
                 for entry in history[-2:]:
                     dump_entry_in_file(entry, jsonl_file=use_file_as_history)
         
-        print(entry_counter)
+        # print(entry_counter)
             
         isInstructed = False
 
@@ -73,7 +73,7 @@ def chat_loop(instruction, client, model, history=[], looping_condition=True, us
 if __name__ == "__main__":
     import os
     from dotenv import load_dotenv
-    
+
     load_dotenv()
 
     # api_key = os.getenv("OPENROUTER_API")
