@@ -4,24 +4,24 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-api_key = os.getenv("OPENROUTER_API")
+api_key = os.getenv("GEMINI_API")
 
 client = OpenAI(
-  base_url="https://openrouter.ai/api/v1",
-  api_key=api_key,
+base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+api_key=api_key,
 )
 
 completion = client.chat.completions.create(
-  model="meta-llama/llama-3.2-3b-instruct:free",
-  extra_body={},
+  model="gemini-2.5-flash",
   messages=[
     {
         "role":"system",
         "content": "You are Kaya, a helpful diary assistant."
     },
     {
+      "time": "12 am fuck off",
       "role": "user",
-      "content": "Who has found the meaning of life? Answer in one line. Also, introduce yourself."
+      "content": "Who are you and introduce yourself in a little bit of detail.",
     }
   ]
 )
