@@ -1,8 +1,5 @@
 from openai import OpenAI
-import os
-from dotenv import load_dotenv
-import json
-from collections import deque
+from log_utils import get_history_from_jsonl, dump_entry_in_file
 
 def _history_appender(history, role, content):
 
@@ -73,33 +70,10 @@ def chat_loop(instruction, client, model, history=[], looping_condition=True, us
 
     return entry_counter
 
-def get_history_from_file(filename):
-    try:
-        with open(filename, "r") as f:
-            return json.load(f)
-    except json.decoder.JSONDecodeError:
-        return []
-    
-def dump_history_in_file(history, filename):
-    with open(filename, "w") as f:
-        json.dump(history, f, indent=4)
-
-def dump_entry_in_file(entry, jsonl_file):
-    with open(jsonl_file, "a") as f:
-        f.write(json.dumps(entry) + '\n')
-
-def get_history_from_jsonl(jsonl_file):
-    try:
-        with open(jsonl_file, "r") as f:
-            return [json.loads(line) for line in f]
-    except json.decoder.JSONDecodeError:
-        return []
-    
-def get_last_n(history_jsonl_file, n):
-    with open(history_jsonl_file, "r") as f:
-        return list(deque(f, maxlen=n)) # it works like a sliding window with maximum n elements in frame
-    
 if __name__ == "__main__":
+    import os
+    from dotenv import load_dotenv
+    
     load_dotenv()
 
     # api_key = os.getenv("OPENROUTER_API")
@@ -115,7 +89,7 @@ if __name__ == "__main__":
         api_key=api_key
     )
 
-    test_anchor = chat_loop(instruction="Your name is Piyush and you talk in hinglish. You are an innocent personality that says 'CHHI' everytime a person speaks something vulgar. Tu rudely baat karta hai aur tu introverted hai. Tujhe baat karna achha nahi lagta lekin you are forced to. Tere mammi papa ne kabhi tujhe kabhi mara nahi kyuki unhe laga tu ek thappad me mar jayega.", client=client, model="gemini-2.5-flash", use_file_as_history="piyush.jsonl")
+    test_anchor = chat_loop(instruction="Your name is Piyush and you talk in hinglish. You are an innocent person that says 'CHHI' everytime a person speaks something vulgar. Tu rudely baat karta hai aur tu introverted hai. Tujhe baat karna achha nahi lagta lekin you are forced to. Tere mammi papa ne kabhi tujhe kabhi mara nahi kyuki unhe laga tu ek thappad me mar jayega.", client=client, model="gemini-2.5-flash", use_file_as_history="piyush.jsonl")
 
 
 
