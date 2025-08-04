@@ -2,6 +2,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import json
+from collections import deque
 
 def _history_appender(history, role, content):
 
@@ -41,18 +42,21 @@ def instruct(instruction, history=[]):
     _history_appender(history, "system", instruction)
 
 def chat_loop(instruction, client, model, history=[], looping_condition=True, use_file_as_history=None):
-   
-   history = get_history_from_jsonl(jsonl_file=use_file_as_history)
+    entry_counter = 0
 
-   instruct(instruction, history)
-   isInstructed = True
+    history = get_history_from_jsonl(jsonl_file=use_file_as_history)
 
-   while looping_condition:
-        
+    instruct(instruction, history)
+    isInstructed = True
+    entry_counter+=1
+
+    while looping_condition:     
         user_says = input("You: ")
-        ai_says = respond(prompt=user_says, client=client, model=model, history=history)
+        entry_counter+=1
 
+        ai_says = respond(prompt=user_says, client=client, model=model, history=history)
         print(f"AI: {ai_says}")
+        entry_counter+=1
 
         if use_file_as_history is not None:
             if isInstructed:
@@ -62,8 +66,12 @@ def chat_loop(instruction, client, model, history=[], looping_condition=True, us
             else:
                 for entry in history[-2:]:
                     dump_entry_in_file(entry, jsonl_file=use_file_as_history)
+        
+        print(entry_counter)
             
         isInstructed = False
+
+    return entry_counter
 
 def get_history_from_file(filename):
     try:
@@ -87,6 +95,10 @@ def get_history_from_jsonl(jsonl_file):
     except json.decoder.JSONDecodeError:
         return []
     
+def get_last_n(history_jsonl_file, n):
+    with open(history_jsonl_file, "r") as f:
+        return list(deque(f, maxlen=n)) # it works like a sliding window with maximum n elements in frame
+    
 if __name__ == "__main__":
     load_dotenv()
 
@@ -103,6 +115,8 @@ if __name__ == "__main__":
         api_key=api_key
     )
 
-    chat_loop(instruction="Your name is Piyush and you talk in hinglish. You are an innocent personality that says 'CHHI' everytime a person speaks something vulgar. Tu rudely baat karta hai aur tu introverted hai. Tujhe baat karna achha nahi lagta lekin you are forced to. Tere mammi papa ne kabhi tujhe kabhi mara nahi kyuki unhe laga tu ek thappad me mar jayega.", client=client, model="gemini-2.5-flash", use_file_as_history="piyush.jsonl")
+    test_anchor = chat_loop(instruction="Your name is Piyush and you talk in hinglish. You are an innocent personality that says 'CHHI' everytime a person speaks something vulgar. Tu rudely baat karta hai aur tu introverted hai. Tujhe baat karna achha nahi lagta lekin you are forced to. Tere mammi papa ne kabhi tujhe kabhi mara nahi kyuki unhe laga tu ek thappad me mar jayega.", client=client, model="gemini-2.5-flash", use_file_as_history="piyush.jsonl")
+
+
 
 # TODO: everytime I start a chat, it repeats the system instruction. Might want to fix that. If not, leave it just like that!
