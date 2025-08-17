@@ -1,5 +1,5 @@
 from openai import OpenAI
-from log_utils import get_history_from_jsonl, dump_entry_in_file, log_session
+from modules.log_utils import get_history_from_jsonl, dump_entry_in_file, log_session
 
 def _history_appender(history, role, content):
 
@@ -38,10 +38,10 @@ def respond(prompt, client, model, history=[]):
 def instruct(instruction, history=[]):
     _history_appender(history, "system", instruction)
 
-def chat_loop(instruction, client, model, history=[], looping_condition=True, use_file_as_history=None, use_file_for_logs=None):
+def chat_loop(instruction, client, model, history=[], looping_condition=True, use_file_as_universal_history=None, use_file_for_temp_logs=None):
     entry_count = 0
 
-    history = get_history_from_jsonl(jsonl_file=use_file_as_history)
+    history = get_history_from_jsonl(jsonl_file=use_file_as_universal_history)
 
     instruct(instruction, history)
     isInstructed = True
@@ -52,27 +52,24 @@ def chat_loop(instruction, client, model, history=[], looping_condition=True, us
         entry_count+=1
 
         ai_says = respond(prompt=user_says, client=client, model=model, history=history)
-        print(f"AI: {ai_says}")
+        print(f"AI: {ai_says}\n")
         entry_count+=1
 
-        if use_file_as_history is not None:
+        if use_file_as_universal_history is not None:
             if isInstructed:
                 for entry in history[-3:]:
-                    dump_entry_in_file(entry, jsonl_file=use_file_as_history)
+                    dump_entry_in_file(entry, jsonl_file=use_file_as_universal_history)
             
             else:
                 for entry in history[-2:]:
-                    dump_entry_in_file(entry, jsonl_file=use_file_as_history)
+                    dump_entry_in_file(entry, jsonl_file=use_file_as_universal_history)
             
         isInstructed = False
 
-        if use_file_for_logs is not None:
-            log_session(use_file_for_logs, current_entry_count=entry_count)
+        if use_file_for_temp_logs is not None:
+            log_session(use_file_for_temp_logs, current_entry_count=entry_count)
         
         entry_count = 0
-        
-
-    return entry_count
 
 if __name__ == "__main__":
     import os
@@ -93,7 +90,6 @@ if __name__ == "__main__":
         api_key=api_key
     )
     
-    temp_entry_count = chat_loop(instruction="Your name is Piyush and you talk in hinglish. You are an innocent person that says 'CHHI' everytime a person speaks something vulgar. Tu rudely baat karta hai aur tu introverted hai. Tujhe baat karna achha nahi lagta lekin you are forced to. Tere mammi papa ne kabhi tujhe kabhi mara nahi kyuki unhe laga tu ek thappad me mar jayega.", client=client, model="gemini-2.5-flash", use_file_as_history="piyush.jsonl", use_file_for_logs='test_session.jsonl')
+    chat_loop(instruction="You are a helpful female AI assistant set in the world of 2037.", client=client, model="gemini-2.5-flash", use_file_as_universal_history="piyush.jsonl", use_file_for_temp_logs='test_session.jsonl')
 
-    log_session("test_session.jsonl", temp_entry_count)
 # TODO: everytime I start a chat, it repeats the system instruction. Might want to fix that. If not, leave it!
