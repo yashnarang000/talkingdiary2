@@ -1,9 +1,9 @@
-import api_adapter_openai as adap
+import modules.api_adapter_openai as adap
 import json
 
 def journalize(client, conversation):
-    prompt  = f"Rewrite the narrative into a diary entry. Highlight the user's key experiences, emotions, and reflections as shared in the narrative. Craft a narrative that accurately reflects the user's story, avoiding assumptions or additions. Maintain a natural and engaging style:\n{conversation}"
-    journal = adap.respond(prompt=prompt, client=client, model="gemini-2-5-pro")
+    prompt  = f"Rewrite the narrative into a diary entry. Highlight the user's key experiences, emotions, and reflections as shared in the narrative. Craft a narrative that accurately reflects the user's story, avoiding assumptions or additions. Maintain a natural and engaging style. Do not focus on the other person user is chatting to. Just focus on the user. Just write the text, nothing else:\n{conversation}"
+    journal = adap.respond(prompt=prompt, client=client, model="gemini-2.5-pro")
     return journal
 
 def jsonl_to_text(jsonl_history_file):
