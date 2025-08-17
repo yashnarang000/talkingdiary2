@@ -38,8 +38,8 @@ class Unmute:
         self.play_button = self.page.locator("xpath=/html/body/div[1]/div/div/div[1]/div[1]/div/canvas")
         self.play_button.wait_for()
         self.play_button.click()
-
         while looping_condition: time.sleep(1)
+
 
 
 if __name__ == "__main__":
