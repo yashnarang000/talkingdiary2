@@ -72,5 +72,8 @@ def history_clipper(universal_history_jsonl, sessionwise_history_jsonl, entry_co
     with open(sessionwise_history_jsonl, 'w') as f:
         f.write(json.dumps(clipped_history))
 
+# Universal history : this history is 'remembered' by the llm
+# Sessional history :  this history is that part of universal history whose diary entry is yet to be made
+
 if __name__ == '__main__':
     fold_session_logs('test_session.jsonl', 'new.jsonl')
