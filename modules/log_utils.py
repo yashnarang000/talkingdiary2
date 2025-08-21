@@ -27,7 +27,8 @@ def get_history_from_jsonl(jsonl_file):
     
 def get_last_n(history_jsonl_file, n):
     with open(history_jsonl_file, "r") as f:
-        return list(deque(f, maxlen=n)) # it works like a sliding window with maximum n elements in frame, one enters, one exists
+        stripped_entries = (line.rstrip("\n") for line in f)
+        return list(deque(stripped_entries, maxlen=n)) # it works like a sliding window with maximum n elements in frame, one enters, one exists
     
 def log_session(session_jsonl_file, current_entry_count):
 
@@ -42,26 +43,40 @@ def log_session(session_jsonl_file, current_entry_count):
 
         f.write(json.dumps(current_session_data) + '\n')
 
-def fold_session_logs(temp_session_jsonl, session_jsonl):
-    with open(temp_session_jsonl, 'r+') as f:
-        temp_session_data = [json.loads(line) for line in f]
-        first_entry_data = temp_session_data[0]
-        last_entry_data = temp_session_data[-1]
-        f.seek(0)
-        f.truncate()
-
-    start_time = datetime.fromtimestamp(float(first_entry_data["timestamp"])).strftime('%Y-%m-%d %H:%M:%S')
-    end_time = datetime.fromtimestamp(float(last_entry_data["timestamp"])).strftime('%Y-%m-%d %H:%M:%S')
-
-    with open(session_jsonl, 'r+') as f:
+def get_entry_count(templogs_jsonl):
+    with open(templogs_jsonl, 'r') as f:
         try:
             last_session_data = [json.loads(line) for line in f][-1]
-            current_session_id = str(int(last_session_data["session_id"]) + 1)
+            entry_count = last_session_data['entry_count']
         except IndexError:
-            current_session_id = "0"
+            entry_count = 0
 
-        session_data = {"session_id": current_session_id, "start": start_time, "end": end_time}
-        f.write(json.dumps(session_data) + '\n')
+        return entry_count
+
+def fold_session_logs(temp_session_jsonl, session_jsonl):
+    try:
+        with open(temp_session_jsonl, 'r+') as f:
+            temp_session_data = [json.loads(line) for line in f]
+            first_entry_data = temp_session_data[0]
+            last_entry_data = temp_session_data[-1]
+            f.seek(0)
+            f.truncate()
+
+        start_time = datetime.fromtimestamp(float(first_entry_data["timestamp"])).strftime('%Y-%m-%d %H:%M:%S')
+        end_time = datetime.fromtimestamp(float(last_entry_data["timestamp"])).strftime('%Y-%m-%d %H:%M:%S')
+
+        with open(session_jsonl, 'r+') as f:
+            try:
+                last_session_data = [json.loads(line) for line in f][-1]
+                current_session_id = str(int(last_session_data["session_id"]) + 1)
+            except IndexError:
+                current_session_id = "0"
+
+            session_data = {"session_id": current_session_id, "start": start_time, "end": end_time}
+            f.write(json.dumps(session_data) + '\n')
+    
+    except IndexError:
+        pass
 
 def history_clipper(universal_history_jsonl, sessionwise_history_jsonl, entry_count):
     '''
@@ -70,10 +85,11 @@ def history_clipper(universal_history_jsonl, sessionwise_history_jsonl, entry_co
     clipped_history = get_last_n(history_jsonl_file=universal_history_jsonl, n=entry_count)
 
     with open(sessionwise_history_jsonl, 'w') as f:
-        f.write(json.dumps(clipped_history))
+        for entry in clipped_history:
+            f.write(entry + '\n')
 
 # Universal history : this history is 'remembered' by the llm
 # Sessional history :  this history is that part of universal history whose diary entry is yet to be made
 
 if __name__ == '__main__':
-    fold_session_logs('test_session.jsonl', 'new.jsonl')
+    history_clipper('kaya/kaya.jsonl', 'kaya/kayaTemp.jsonl', 10)

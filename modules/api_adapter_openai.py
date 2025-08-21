@@ -52,7 +52,7 @@ def chat_loop(instruction, client, model, history=[], looping_condition=True, us
         entry_count+=1
 
         ai_says = respond(prompt=user_says, client=client, model=model, history=history)
-        print(f"AI: {ai_says}\n")
+        print(f"\nAI: {ai_says}\n")
         entry_count+=1
 
         if use_file_as_universal_history is not None:
