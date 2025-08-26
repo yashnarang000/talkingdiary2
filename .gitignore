@@ -12,3 +12,6 @@ piyush.jsonl
 modules/__pycache__/
 kettle/
 kaya/
+Testing Zone/
+build/
+dist/
